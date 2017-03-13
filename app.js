@@ -3,12 +3,15 @@ const app = express();
 
 const port = 3000;
 
+app.set('views', './views');
+app.set('view engine', 'ejs')
+
 app.get('/', (req, res) => {
-    res.status(200).send('Hello World with npm custom scripts');
+    res.render('index');
 });
 
 app.get('/movies', (req, res) => {
-    res.send('Bientôt des <b>films</b> ici même.');
+    res.render('movies');
 });
 
 app.get('/movies/add', (req, res) => {
