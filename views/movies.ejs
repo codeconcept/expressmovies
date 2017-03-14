@@ -7,15 +7,14 @@
 	</head>
 	<body>
 		<% include ./partials/header %>
-		
+
 		<div class="central">
-			<h1>Les films cultes</h1>
+			<h1><%= title %></h1>
+						
 			<div>
-				azerty
-			</div>		
-			
-			<div>
-				<%= joke %>
+				<% for(movie of movies) { %>
+					<div><%= movie.title %> (<%= movie.year %>)</div>
+				<% } %>
 			</div>
 		</div>
 

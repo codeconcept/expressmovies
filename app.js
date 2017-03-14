@@ -14,7 +14,15 @@ app.get('/', (req, res) => {
 });
 
 app.get('/movies', (req, res) => {
-    res.render('movies', { joke: 'la blague du jour'});
+
+    const title = "Films français des 30 dernières années";
+    const frenchMovies = [
+        { title: 'Le fabuleux destin d\'Amélie Poulain', year: 2001},
+        { title: 'Buffet froid', year: 1979},
+        { title: 'Le diner de cons', year: 1998},
+        { title: 'de rouille et d\'os', year: 2012}
+    ]
+    res.render('movies', { title: title, movies: frenchMovies});
 });
 
 app.get('/movies/add', (req, res) => {
