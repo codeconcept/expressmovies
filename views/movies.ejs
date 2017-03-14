@@ -11,14 +11,15 @@
 		<div class="central">
 			<h1><%= title %></h1>
 						
-			<div>
+			<div class="french-movies">
 				<% for(movie of movies) { %>
 					<div><%= movie.title %> (<%= movie.year %>)</div>
 				<% } %>
 			</div>
 			<br>
 			<div>
-				<form action="/movies" method="post">
+				<form>
+					<legend>Ajouter un film</legend>
 					<label for="movietitle">Titre du film</label>
 					<input type="text" name="movietitle" id="movietitle">
 					<label for="movieyear">Année du film</label>
@@ -31,6 +32,71 @@
 		<footer>
 			<% include ./partials/footer %>
 		</footer>
+		<script>
+			var form = document.querySelector('form');
+			form.addEventListener("submit", addMovie);	
 
+			function addMovie(event) {
+				if(fetch) {
+					addMovieUsingFetch(event);
+				} else {
+					addMovieUsingXHR(event);
+				}
+			}	
+
+			function addMovieUsingFetch(event) {
+				event.preventDefault();
+
+				fetch('/movies', {
+					method: 'POST',
+					body: new FormData(form)
+				})
+				.then(checkStatus)
+				.catch(function(error) {
+					console.log('request failed', error)
+				});
+			} 
+
+			function checkStatus(response) {
+				if (response.status >= 200 && response.status < 300) {					
+					let newMovieDiv = document.createElement('div');
+					const movietitle = document.getElementById('movietitle').value;
+					const movieyear = document.getElementById('movieyear').value;
+					newMovieDiv.innerHTML = `${movietitle} (${movieyear})`;
+					document.querySelector('.french-movies').appendChild(newMovieDiv);
+					form.reset();
+
+				} else {
+					const error = new Error(response.statusText);
+					error.response = response;
+					throw error;
+				}
+			}
+			
+			function addMovieUsingXHR(event) {
+				// this browser does NOT support fetch. Fall back to XHR
+				event.preventDefault();
+
+				// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", '/movies-old-browser', true);
+
+				//Send the proper header information along with the request
+				xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+				xhr.onreadystatechange = function() {//Call a function when the state changes.
+					if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+
+						form.reset();
+					}
+				}
+				// https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects
+				console.log('form: ', form);
+				var movietitle = document.getElementById('movietitle').value;
+				var movieyear = document.getElementById('movieyear').value;
+				var payLoad = "movietitle=" + movietitle + "&" + "movieyear=" + movieyear; 
+				xhr.send(payLoad); 				
+			}
+		</script>
 	</body>
 </html>

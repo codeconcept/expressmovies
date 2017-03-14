@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const multer = require('multer');
+const upload = multer();
 
 const port = 3000;
+let frenchMovies = [];
 
 app.set('views', './views');
 app.set('view engine', 'ejs');
@@ -18,7 +21,7 @@ app.get('/', (req, res) => {
 app.get('/movies', (req, res) => {
 
     const title = "Films français des 30 dernières années";
-    const frenchMovies = [
+    frenchMovies = [
         { title: 'Le fabuleux destin d\'Amélie Poulain', year: 2001},
         { title: 'Buffet froid', year: 1979},
         { title: 'Le diner de cons', year: 1998},
@@ -27,16 +30,44 @@ app.get('/movies', (req, res) => {
     res.render('movies', { title: title, movies: frenchMovies});
 });
 
+// // create application/x-www-form-urlencoded parser
+// // https://github.com/expressjs/body-parser
+// var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+// app.post('/movies', urlencodedParser, (req, res) => {
+//     if (!req.body) {
+//         return res.sendStatus(400);
+//     } else {
+//         // res.send('welcome, ' + req.body.movietitle);
+//         console.log('req.body', req.body);
+//         res.send(req.body.movietitle);
+//     } 
+// });
+
+//!\ In upload.fields([]), the empty array '[]' is required
+app.post('/movies', upload.fields([]), (req, res) => {
+    if (!req.body) {
+        return res.sendStatus(500);
+    } else {
+        const formData = req.body; 
+        console.log('form data: ', formData);
+        const newMovie = { title: formData.movietitle, year: formData.movieyear };
+        frenchMovies = [... frenchMovies, newMovie];
+        res.sendStatus(201);
+    } 
+});
+
+
 // create application/x-www-form-urlencoded parser
+// https://github.com/expressjs/body-parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.post('/movies', urlencodedParser, (req, res) => {
+app.post('/movies-old-browser', urlencodedParser, (req, res) => {
     if (!req.body) {
-        return res.sendStatus(400);
-    } else {
-        // res.send('welcome, ' + req.body.movietitle);
-        console.log('req.body', req.body);
-        res.send(req.body.movietitle);
+        return res.sendStatus(500);
+    } else {        
+        frenchMovies = [... frenchMovies, { title: req.body.movietitle, year: req.body.movieyear }];
+        res.sendStatus(201);
     } 
 });
 
