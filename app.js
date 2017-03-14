@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 
 const port = 3000;
 
 app.set('views', './views');
 app.set('view engine', 'ejs');
+
 
 // to service static files from the public folder
 app.use('/public', express.static('public'));
@@ -24,6 +26,20 @@ app.get('/movies', (req, res) => {
     ]
     res.render('movies', { title: title, movies: frenchMovies});
 });
+
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+app.post('/movies', urlencodedParser, (req, res) => {
+    if (!req.body) {
+        return res.sendStatus(400);
+    } else {
+        // res.send('welcome, ' + req.body.movietitle);
+        console.log('req.body', req.body);
+        res.send(req.body.movietitle);
+    } 
+});
+
 
 app.get('/movies/add', (req, res) => {
     res.send('prochainement, un formulaire d\'ajout ici');

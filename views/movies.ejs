@@ -16,6 +16,16 @@
 					<div><%= movie.title %> (<%= movie.year %>)</div>
 				<% } %>
 			</div>
+			<br>
+			<div>
+				<form action="/movies" method="post">
+					<label for="movietitle">Titre du film</label>
+					<input type="text" name="movietitle" id="movietitle">
+					<label for="movieyear">Année du film</label>
+					<input type="text" name="movieyear" id="movieyear">
+					<button type="submit">ajouter</button>
+				</form>
+			</div>
 		</div>
 
 		<footer>
