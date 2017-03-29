@@ -11,7 +11,7 @@
 		<div class="central">
 			<h1><%= title %></h1>
 			<br>
-			<div>
+			<div id="login">
 				<form>
 					<legend>Veuillez saisir vos identifiants</legend>
 					<label for="email">email</label>
@@ -21,6 +21,13 @@
 					<button type="submit">connexion</button>
 				</form>
 			</div>
+
+            <br>
+            <div id="profile" style="display:none">
+
+                <button id="disconnectBtn">déconnexion</button>
+            </div>
+
 		</div>
 
 		<footer>
@@ -29,6 +36,12 @@
 		<script>
 			var form = document.querySelector('form');
 			form.addEventListener("submit", loginUser);	
+            
+            var loginArea = document.querySelector('#login')
+            var profileArea = document.querySelector('#profile')
+
+            var disconnectBtn = document.querySelector('#disconnectBtn');
+            disconnectBtn.addEventListener('click', disconnect);
 
 			function loginUser(event) {				
                 loginUserWithXHR(event);
@@ -47,6 +60,11 @@
 
 				xhr.onreadystatechange = function() {//Call a function when the state changes.
 					if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                        // add token to localStorage
+                        var token = xhr.response;
+                        localStorage.setItem('token', token);
+                        switchToLoggedinMode();
+
 						form.reset();
 					}
 				}				
@@ -55,6 +73,21 @@
 				var payLoad = "email=" + email + "&" + "password=" + password; 
 				xhr.send(payLoad); 				
 			}
+
+            function switchToLoggedinMode() {
+                loginArea.style.display = 'none';
+                profileArea.style.display = 'block';
+            }
+
+            function switchToLoggedOutMode() {
+                loginArea.style.display = 'block';
+                profileArea.style.display = 'none';
+            }
+
+            function disconnect() {
+                switchToLoggedOutMode();
+                localStorage.removeItem('token');
+            }
 		</script>
 	</body>
 </html>
