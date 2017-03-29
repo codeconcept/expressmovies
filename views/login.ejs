@@ -37,8 +37,10 @@
 			var form = document.querySelector('form');
 			form.addEventListener("submit", loginUser);	
             
-            var loginArea = document.querySelector('#login')
-            var profileArea = document.querySelector('#profile')
+            var loginArea = document.querySelector('#login');
+            var profileArea = document.querySelector('#profile');
+            var connectionLinkArea = document.querySelector('#connectionLink');
+            handleFormDisplay();
 
             var disconnectBtn = document.querySelector('#disconnectBtn');
             disconnectBtn.addEventListener('click', disconnect);
@@ -74,14 +76,24 @@
 				xhr.send(payLoad); 				
 			}
 
+            function handleFormDisplay() {
+                if(localStorage.getItem('token')) {
+                    switchToLoggedinMode();
+                } else {
+                    switchToLoggedOutMode();
+                }
+            }
+
             function switchToLoggedinMode() {
                 loginArea.style.display = 'none';
                 profileArea.style.display = 'block';
+                connectionLinkArea.innerHTML = '<a href="/login">déconnexion</a>';
             }
 
             function switchToLoggedOutMode() {
                 loginArea.style.display = 'block';
                 profileArea.style.display = 'none';
+                connectionLinkArea.innerHTML = '<a href="/login">connexion</a>';                
             }
 
             function disconnect() {

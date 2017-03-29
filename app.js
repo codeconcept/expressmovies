@@ -88,7 +88,7 @@ app.get('/movie-search', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    res.render('login', { title: 'Connexion'});
+    res.render('login', { title: 'Espace membre'});
 });
 
 const fakeUser = { email: 'testuser@testmail.fr', password: 'qsd' };
