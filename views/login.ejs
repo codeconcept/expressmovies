@@ -24,8 +24,9 @@
 
             <br>
             <div id="profile" style="display:none">
-
+                <button id="display-payload">voir le payload</button>
                 <button id="disconnectBtn">déconnexion</button>
+                <div id="decoded-payload"></div>
             </div>
 
 		</div>
@@ -41,6 +42,9 @@
             var profileArea = document.querySelector('#profile');
             var connectionLinkArea = document.querySelector('#connectionLink');
             handleFormDisplay();
+
+            var displayPayloadBtn = document.querySelector('#display-payload');
+            displayPayloadBtn.addEventListener('click', displayPayload);
 
             var disconnectBtn = document.querySelector('#disconnectBtn');
             disconnectBtn.addEventListener('click', disconnect);
@@ -76,9 +80,11 @@
 				xhr.send(payLoad); 				
 			}
 
-            function handleFormDisplay() {
-                if(localStorage.getItem('token')) {
-                    switchToLoggedinMode();
+            function handleFormDisplay() { 
+                tokenFromStorage = localStorage.getItem('token');            
+                console.log('handleFormDisplay tokenFromStorage', tokenFromStorage);   
+                if(tokenFromStorage) {
+                    switchToLoggedinMode();                     
                 } else {
                     switchToLoggedOutMode();
                 }
@@ -93,8 +99,25 @@
             function switchToLoggedOutMode() {
                 loginArea.style.display = 'block';
                 profileArea.style.display = 'none';
-                connectionLinkArea.innerHTML = '<a href="/login">connexion</a>';                
+                connectionLinkArea.innerHTML = '<a href="/login">connexion</a>';      
             }
+
+            function displayPayload() {
+                var payload = parseJwt();
+                var decodedPayloadDiv = document.querySelector('#decoded-payload');
+                decodedPayloadDiv.innerHTML = '<pre>' + JSON.stringify(payload) + '</pre>';
+            }
+
+            function parseJwt () { 
+                tokenFromStorage = localStorage.getItem('token');            
+                console.log('parseJwt tokenFromStorage', tokenFromStorage);
+                if(tokenFromStorage) {
+                    var base64Payload = tokenFromStorage.split('.')[1];                
+                    return JSON.parse(window.atob(base64Payload));
+                } else {
+                    return 'no token to parse';
+                }          
+            };
 
             function disconnect() {
                 switchToLoggedOutMode();
