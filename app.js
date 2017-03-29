@@ -83,7 +83,32 @@ app.get('/movies/:id', (req, res) => {
 
 app.get('/movie-search', (req, res) => {
     res.render('movie-search');
-})
+});
+
+app.get('/login', (req, res) => {
+    res.render('login', { title: 'Connexion'});
+});
+
+const fakeUser = { email: 'testuser@testmail.fr', password: 'qsd' };
+
+app.post('/login', urlencodedParser, (req, res) => {
+    console.log('login post', req.body);
+    if (!req.body) {
+        return res.sendStatus(500);
+    } else {        
+        if(fakeUser.email === req.body.email && fakeUser.password === req.body.password) {
+            res.json({ 
+                        email: 'testuser@testmail.fr', 
+                        favoriteMovie: 'Il etait une fois dans l\'Ouest',
+                        favoriteMovieTheater: 'Ciné TNB, 1 Rue Saint-Hélier, 35040 Rennes', 
+                        lastLoginDate: new Date() 
+                    });
+        } else {
+            res.sendStatus(401);
+        } 
+    } 
+});
+
 
 app.listen(port, () => {
     console.log(`listening on port ${port}`);
