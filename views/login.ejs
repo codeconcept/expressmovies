@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 	<html lang="fr">
-	<head>
-		<meta charset="UTF-8">
-		<title>Express Movies</title>
-		<link rel="stylesheet" href="../public/style.css" />
-	</head>
+    <% include ./partials/head %>    
 	<body>
 		<% include ./partials/header %>
 
@@ -27,6 +23,10 @@
                 <button id="display-payload">voir le payload</button>
                 <button id="disconnectBtn">déconnexion</button>
                 <div id="decoded-payload"></div>
+                <div>
+                    <a href="#" id="member-only">expace membre</a>
+                    <div id="member-data"></div>
+                </div>
             </div>
 
 		</div>
@@ -48,6 +48,9 @@
 
             var disconnectBtn = document.querySelector('#disconnectBtn');
             disconnectBtn.addEventListener('click', disconnect);
+
+            var memberOnlyLink = document.querySelector('#member-only');
+            memberOnlyLink.addEventListener('click', makeRequestWithToken);
 
 			function loginUser(event) {				
                 loginUserWithXHR(event);
@@ -122,6 +125,36 @@
             function disconnect() {
                 switchToLoggedOutMode();
                 localStorage.removeItem('token');
+            }
+            
+
+            function makeRequestWithToken(evt) {
+                evt.preventDefault();
+                console.log('makeRequestWithToken');
+                var page = this.id;
+                tokenFromStorage = localStorage.getItem('token');   
+                var config = {};
+                if(tokenFromStorage) {
+                    config.headers =  {'Authorization': "Bearer " + JSON.parse(tokenFromStorage)}
+                }
+
+                var bodyParameters = {};
+
+                axios.get( 
+                    'http://localhost:3000/' + page,
+                    config
+                ).then((res) => {
+                    console.log('success');
+                    console.log(res);  
+                    const memberDataDiv = document.querySelector('#member-data');
+                    memberDataDiv.innerHTML = '<pre>Bienvenue ' + res.data.user + '<br>'
+                                                + '. Votre rôle : ' + res.data.role  + '<br>'
+                                                + '. Vous pouvez tout casser sur ' + res.data.iss
+                                                + '</pre>';
+                })
+                .catch(err => {
+                    console.error('makeRequestWithToken err', err);
+                });
             }
 		</script>
 	</body>

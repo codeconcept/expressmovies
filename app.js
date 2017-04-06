@@ -1,10 +1,14 @@
 const express = require('express');
 const app = express();
+var favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const upload = multer();
+var path = require('path');
 
 const jwt = require('jsonwebtoken');
+// to verify token on the request header
+var expressJwt = require('express-jwt'); 
 
 const port = 3000;
 let frenchMovies = [];
@@ -12,9 +16,16 @@ let frenchMovies = [];
 app.set('views', './views');
 app.set('view engine', 'ejs');
 
+const secret = 'qsdjS12ozehdoIJ123DJOZJLDSCqsdeffdg123ER56SDFZedhWXojqshduzaohduihqsDAqsdq';
 
 // to service static files from the public folder
 app.use('/public', express.static('public'));
+
+// // favicon
+// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// check token on all pages except the ones mentioned in unless()
+app.use(expressJwt({ secret: secret}).unless({ path: ['/', '/movies', '/movie-search', '/login']}));
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -31,20 +42,6 @@ app.get('/movies', (req, res) => {
     ]
     res.render('movies', { title: title, movies: frenchMovies});
 });
-
-// // create application/x-www-form-urlencoded parser
-// // https://github.com/expressjs/body-parser
-// var urlencodedParser = bodyParser.urlencoded({ extended: false });
-
-// app.post('/movies', urlencodedParser, (req, res) => {
-//     if (!req.body) {
-//         return res.sendStatus(400);
-//     } else {
-//         // res.send('welcome, ' + req.body.movietitle);
-//         console.log('req.body', req.body);
-//         res.send(req.body.movietitle);
-//     } 
-// });
 
 //!\ In upload.fields([]), the empty array '[]' is required
 app.post('/movies', upload.fields([]), (req, res) => {
@@ -67,7 +64,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.post('/movies-old-browser', urlencodedParser, (req, res) => {
     if (!req.body) {
         return res.sendStatus(500);
-    } else {        
+    } else {    
         frenchMovies = [... frenchMovies, { title: req.body.movietitle, year: req.body.movieyear }];
         res.sendStatus(201);
     } 
@@ -92,7 +89,6 @@ app.get('/login', (req, res) => {
 });
 
 const fakeUser = { email: 'testuser@testmail.fr', password: 'qsd' };
-const secret = 'qsdjS12ozehdoIJ123DJOZJLDSCqsdeffdg123ER56SDFZedhWXojqshduzaohduihqsDAqsdq';
 
 app.post('/login', urlencodedParser, (req, res) => {
     console.log('login post', req.body);
@@ -109,6 +105,20 @@ app.post('/login', urlencodedParser, (req, res) => {
         } 
     } 
 });
+
+app.get('/member-only',(req, res) => {
+    console.log('req.user', req.user);
+    if(req.user.role === 'moderator') {
+        res.send(req.user);
+    };
+});
+
+// // to make the error message clearer
+// app.use(function (err, req, res, next) {
+//   if (err.name === 'UnauthorizedError') {
+//     res.status(401).send(err.inner);
+//   }
+// });
 
 
 app.listen(port, () => {

@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 	<html lang="fr">
-	<head>
-		<meta charset="UTF-8">
-		<title>Express Movies</title>
-		<link rel="stylesheet" href="../public/style.css" />
-	</head>
+	<% include ./partials/head %>
 	<body>
 		<% include ./partials/header %>
 
@@ -37,7 +33,7 @@
 			form.addEventListener("submit", addMovie);	
 
 			function addMovie(event) {
-				if(fetch) {
+				if(window.fetch) {
 					addMovieUsingFetch(event);
 				} else {
 					addMovieUsingXHR(event);

@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 	<html lang="fr">
-	<head>
-		<meta charset="UTF-8">
-		<title>Fiche du film </title>
-		<link rel="stylesheet" href="../public/style.css" />		
-	</head>
+	<% include ./partials/head %>
 	<body>
 		<% include ./partials/header %>
 		
@@ -30,7 +26,8 @@
 
             let resultsDiv = document.querySelector('#results');
 
-            function search() {                
+            function search() { 
+                console.log('search');               
                 const query = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${term.value}&language=fr-FR&region=FR`;
                 axios.get(query)
                         .then(function (response) {
