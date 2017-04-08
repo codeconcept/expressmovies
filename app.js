@@ -26,22 +26,7 @@ const movieSchema = mongoose.Schema({
     movietitle: String,
     movieyear: Number
 });
-
-
 const Movie = mongoose.model('Movie', movieSchema);
-const title = faker.lorem.sentence(3);
-const year = Math.floor(Math.random() * 80 ) + 1950;
-const myMovie = new Movie({ movietitle: title, movieyear: year });
-
-myMovie.save((err, savedMovie) => {
-    if(err) {
-        console.error(err);
-        return;
-    } else {
-        console.log(savedMovie);
-    }
-});
-
 
 const port = 3000;
 let frenchMovies = [];
@@ -67,13 +52,16 @@ app.get('/', (req, res) => {
 app.get('/movies', (req, res) => {
 
     const title = "Films français des 30 dernières années";
-    frenchMovies = [
-        { title: 'Le fabuleux destin d\'Amélie Poulain', year: 2001},
-        { title: 'Buffet froid', year: 1979},
-        { title: 'Le diner de cons', year: 1998},
-        { title: 'de rouille et d\'os', year: 2012}
-    ]
-    res.render('movies', { title: title, movies: frenchMovies});
+    frenchMovies = [];
+    Movie.find((err, movies) => {
+        if(err) {
+            console.log('could not retrieve movies from DB');
+            res.sendStatus(500);
+        } else {
+            frenchMovies = movies;
+            res.render('movies', { title: title, movies: frenchMovies});
+        }
+    });
 });
 
 //!\ In upload.fields([]), the empty array '[]' is required
@@ -83,8 +71,20 @@ app.post('/movies', upload.fields([]), (req, res) => {
     } else {
         const formData = req.body; 
         console.log('form data: ', formData);
-        const newMovie = { title: formData.movietitle, year: formData.movieyear };
-        frenchMovies = [... frenchMovies, newMovie];
+        
+        const title = req.body.movietitle;
+        const year = req.body.movieyear;
+        const myMovie = new Movie({ movietitle: title, movieyear: year });
+
+        myMovie.save((err, savedMovie) => {
+            if(err) {
+                console.error(err);
+                return;
+            } else {
+                console.log(savedMovie);
+            }
+        });
+        
         res.sendStatus(201);
     } 
 });
