@@ -4,11 +4,44 @@ var favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const upload = multer();
-var path = require('path');
+const path = require('path');
 
 const jwt = require('jsonwebtoken');
 // to verify token on the request header
-var expressJwt = require('express-jwt'); 
+const expressJwt = require('express-jwt'); 
+
+const faker = require('faker');
+faker.locale = "fr";
+
+const mongoose = require('mongoose');
+mongoose.Promise = Promise;
+mongoose.connect('mongodb://your_user:your_password@ds145780.mlab.com:45780/expressmovie');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error: cannot connect to my DB'));
+db.once('open', function() {
+  console.log('connected to the DB :) ')
+});
+
+const movieSchema = mongoose.Schema({
+    movietitle: String,
+    movieyear: Number
+});
+
+
+const Movie = mongoose.model('Movie', movieSchema);
+const title = faker.lorem.sentence(3);
+const year = Math.floor(Math.random() * 80 ) + 1950;
+const myMovie = new Movie({ movietitle: title, movieyear: year });
+
+myMovie.save((err, savedMovie) => {
+    if(err) {
+        console.error(err);
+        return;
+    } else {
+        console.log(savedMovie);
+    }
+});
+
 
 const port = 3000;
 let frenchMovies = [];
