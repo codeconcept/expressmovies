@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const upload = multer();
 const path = require('path');
+const config = require('./config');
 
 const jwt = require('jsonwebtoken');
 // to verify token on the request header
@@ -15,7 +16,7 @@ faker.locale = "fr";
 
 const mongoose = require('mongoose');
 mongoose.Promise = Promise;
-mongoose.connect('mongodb://your_user:your_password@ds145780.mlab.com:45780/expressmovie');
+mongoose.connect(`mongodb://${config.db.user}:${config.db.password}@ds145780.mlab.com:45780/expressmovie`);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: cannot connect to my DB'));
 db.once('open', function() {
@@ -43,7 +44,7 @@ app.use('/public', express.static('public'));
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // check token on all pages except the ones mentioned in unless()
-app.use(expressJwt({ secret: secret}).unless({ path: ['/', '/movies', '/movie-search', '/login']}));
+app.use(expressJwt({ secret: secret}).unless({ path: ['/', '/movies', new RegExp('/movies.*/', 'i'), '/movie-search', '/login']}));
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -90,6 +91,7 @@ app.post('/movies', upload.fields([]), (req, res) => {
 });
 
 
+
 // create application/x-www-form-urlencoded parser
 // https://github.com/expressjs/body-parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -111,6 +113,30 @@ app.get('/movies/add', (req, res) => {
 app.get('/movies/:id', (req, res) => {
     const id = req.params.id;
     res.render('movie-details');
+});
+
+app.post('/movie-details/:id',  urlencodedParser,  (req, res) => {
+    console.log('movietitle: ', req.body.movietitle, 'movieyear: ', req.body.movieyear);
+    if (!req.body) {
+        return res.sendStatus(500);
+    }
+    const id = req.params.id;
+    Movie.findByIdAndUpdate(id, { $set : {movietitle: req.body.movietitle, movieyear: req.body.movieyear}}, 
+                                { new: true }, (err, movie) => {
+        if(err) {
+            console.error(err);
+            return res.send('le film n\'a pas pu être mis à jour');
+        }
+        res.redirect('/movies');
+    });
+});
+
+app.get('/movie-details/:id', (req, res) => {
+    const id = req.params.id;
+    Movie.findById(id, (err, movie) => {
+        console.log('movie-details', movie);
+        res.render('movie-details.ejs', { movie: movie});
+    })
 });
 
 app.get('/movie-search', (req, res) => {
