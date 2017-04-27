@@ -44,7 +44,8 @@ app.use('/public', express.static('public'));
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // check token on all pages except the ones mentioned in unless()
-app.use(expressJwt({ secret: secret}).unless({ path: ['/', '/movies', new RegExp('/movies.*/', 'i'), '/movie-search', '/login']}));
+app.use(expressJwt({ secret: secret})
+    .unless({ path: ['/', '/movies', new RegExp('/movies.*/', 'i'), '/movie-search', '/login', new RegExp('/movie-details.*/', 'i')]}));
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -138,6 +139,15 @@ app.get('/movie-details/:id', (req, res) => {
         res.render('movie-details.ejs', { movie: movie});
     })
 });
+
+app.delete('/movie-details/:id', (req, res) => {
+    console.log('delete');
+    const id = req.params.id;
+    Movie.findOneAndRemove(id, (err, movie) => {
+        console.log(movie);
+        res.sendStatus(202);
+    });
+})
 
 app.get('/movie-search', (req, res) => {
     res.render('movie-search');
