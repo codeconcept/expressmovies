@@ -1,10 +1,4 @@
-const mongoose = require('mongoose');
-
-const movieSchema = mongoose.Schema({
-    movietitle: String,
-    movieyear: Number
-});
-const Movie = mongoose.model('Movie', movieSchema);
+const Movie = require('../models/Movie');
 
 exports.getMovies = (req, res) => {
     console.log('depuis movieController.getMovies');
@@ -21,7 +15,6 @@ exports.getMovies = (req, res) => {
         }
     });
 }
-
 
 exports.postMovie = (req, res) => {
     console.log('depuis movieController.postMovie');
