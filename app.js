@@ -7,6 +7,7 @@ const upload = multer();
 const path = require('path');
 const config = require('./config');
 const movieController = require('./controllers/movieController');
+const authController = require('./controllers/authController');
 
 const jwt = require('jsonwebtoken');
 // to verify token on the request header
@@ -30,13 +31,10 @@ let frenchMovies = [];
 app.set('views', './views');
 app.set('view engine', 'ejs');
 
-const secret = 'qsdjS12ozehdoIJ123DJOZJLDSCqsdeffdg123ER56SDFZedhWXojqshduzaohduihqsDAqsdq';
-
 // to service static files from the public folder
 app.use('/public', express.static('public'));
 
-// // favicon
-// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+const secret = 'qsdjS12ozehdoIJ123DJOZJLDSCqsdeffdg123ER56SDFZedhWXojqshduzaohduihqsDAqsdq';
 
 // check token on all pages except the ones mentioned in unless()
 app.use(expressJwt({ secret: secret})
@@ -69,42 +67,11 @@ app.delete('/movie-details/:id', movieController.deleteMovie)
 
 app.get('/movie-search', movieController.movieSearch);
 
-app.get('/login', (req, res) => {
-    res.render('login', { title: 'Espace membre'});
-});
+app.get('/login', authController.login);
 
-const fakeUser = { email: 'testuser@testmail.fr', password: 'qsd' };
+app.post('/login', urlencodedParser, authController.postLogin);
 
-app.post('/login', urlencodedParser, (req, res) => {
-    console.log('login post', req.body);
-    if (!req.body) {
-        return res.sendStatus(500);
-    } else {        
-        if(fakeUser.email === req.body.email && fakeUser.password === req.body.password) {
-            // iss means 'issuer'
-            const myToken = jwt.sign({iss: 'http://expressmovies.fr', user: 'Sam', role: 'moderator'}, secret);
-            console.log('myToken', myToken);
-            res.json(myToken);
-        } else {
-            res.sendStatus(401);
-        } 
-    } 
-});
-
-app.get('/member-only',(req, res) => {
-    console.log('req.user', req.user);
-    if(req.user.role === 'moderator') {
-        res.send(req.user);
-    };
-});
-
-// // to make the error message clearer
-// app.use(function (err, req, res, next) {
-//   if (err.name === 'UnauthorizedError') {
-//     res.status(401).send(err.inner);
-//   }
-// });
-
+app.get('/member-only', authController.getMemberOnly);
 
 app.listen(port, () => {
     console.log(`listening on port ${port}`);
